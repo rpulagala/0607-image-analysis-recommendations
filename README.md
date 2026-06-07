@@ -162,9 +162,36 @@ create table subscriptions (
 
 -- Storage bucket for user images
 insert into storage.buckets (id, name, public) values ('user-images', 'user-images', true);
+
+-- Storage RLS: authenticated users upload to their own folder; public read
+create policy "Users upload own images" on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'user-images' and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "Public read images" on storage.objects
+  for select using (bucket_id = 'user-images');
 ```
 
-Enable Row Level Security and add policies so users can only access their own records.
+Then add a trigger to auto-create `profiles` and `subscriptions` rows on signup:
+
+```sql
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, full_name)
+  values (new.id, new.raw_user_meta_data->>'full_name');
+
+  insert into public.subscriptions (user_id, tier)
+  values (new.id, 'free');
+
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+```
 
 ### 4. Run the backend
 
@@ -172,8 +199,27 @@ Enable Row Level Security and add policies so users can only access their own re
 uvicorn backend.main:app --reload --port 8000
 ```
 
-The API will be available at `http://localhost:8000`.  
-Interactive docs: `http://localhost:8000/docs`
+API available at `http://localhost:8000` · Swagger docs at `http://localhost:8000/docs`
+
+### 5. Run the frontend
+
+```bash
+cd frontend
+npm install
+```
+
+Create `frontend/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_STRIPE_PRO_PRICE_ID=price_...
+```
+
+```bash
+npm run dev
+```
+
+Frontend available at `http://localhost:3000`
 
 ---
 
