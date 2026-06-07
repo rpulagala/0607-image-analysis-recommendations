@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proposal — AI-Powered Image Analysis & Recommendations App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      line-height: 1.7;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+      color: #fff;
+      padding: 48px 48px 40px;
+    }
+    header .label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #7ecbff;
+      margin-bottom: 12px;
+    }
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+    header p {
+      font-size: 15px;
+      color: #c8d8e8;
+      max-width: 580px;
+    }
+    .header-meta {
+      display: flex;
+      gap: 32px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .header-meta div {
+      font-size: 13px;
+      color: #a0b8cc;
+    }
+    .header-meta span {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-top: 2px;
+    }
+
+    /* ── Content ── */
+    .content {
+      padding: 48px;
+    }
+
+    section {
+      margin-bottom: 44px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f3460;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e8f0fe;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #0f3460, #1a6ec8);
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    p { font-size: 15px; color: #3a3a5c; margin-bottom: 12px; }
+
+    /* ── Highlight box ── */
+    .highlight {
+      background: #f0f6ff;
+      border-left: 4px solid #1a6ec8;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #1a3a5c;
+    }
+
+    /* ── Phase cards ── */
+    .phases {
+      display: grid;
+      gap: 16px;
+    }
+    .phase-card {
+      border: 1px solid #e0e8f4;
+      border-radius: 10px;
+      padding: 20px 24px;
+      position: relative;
+    }
+    .phase-card .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .phase-badge {
+      background: linear-gradient(135deg, #0f3460, #1a6ec8);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .phase-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #1a1a2e;
+    }
+    .phase-day {
+      margin-left: auto;
+      font-size: 12px;
+      color: #7a8ea8;
+      font-weight: 600;
+    }
+    .phase-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .phase-card ul li {
+      font-size: 14px;
+      color: #3a4a6a;
+      padding: 4px 0 4px 20px;
+      position: relative;
+    }
+    .phase-card ul li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #1a6ec8;
+      font-weight: 700;
+    }
+
+    /* ── Tech stack ── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .stack-item {
+      background: #f8faff;
+      border: 1px solid #dde8f8;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .stack-item .layer {
+      font-size: 11px;
+      color: #7a8ea8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .stack-item .tech {
+      font-weight: 700;
+      font-size: 14px;
+      color: #0f3460;
+      margin-bottom: 4px;
+    }
+    .stack-item .reason {
+      font-size: 12px;
+      color: #5a6a84;
+    }
+
+    /* ── Pricing ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 560px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+    .price-card {
+      border: 2px solid #e0e8f4;
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+    }
+    .price-card.featured {
+      border-color: #1a6ec8;
+      background: #f0f6ff;
+      position: relative;
+    }
+    .price-card.featured::before {
+      content: 'Recommended';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a6ec8;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .price-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+    .price-card .amount {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0f3460;
+      line-height: 1;
+      margin: 12px 0 4px;
+    }
+    .price-card .amount span {
+      font-size: 16px;
+      font-weight: 500;
+      color: #7a8ea8;
+    }
+    .price-card .description {
+      font-size: 13px;
+      color: #5a6a84;
+      margin-top: 8px;
+    }
+
+    /* ── Deliverables ── */
+    .deliverables-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    .deliverable-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #f8faff;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 14px;
+      color: #2a3a5c;
+    }
+    .deliverable-item .d-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Timeline summary bar ── */
+    .timeline-bar {
+      display: flex;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 12px;
+      margin-bottom: 16px;
+    }
+    .timeline-bar div {
+      flex: 1;
+    }
+    .t1 { background: #1a6ec8; }
+    .t2 { background: #2a8de0; }
+    .t3 { background: #4aa8f0; }
+    .t4 { background: #70bff8; }
+
+    /* ── Infrastructure costs ── */
+    .infra-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .infra-table th {
+      background: #f0f4fc;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #4a5a7a;
+    }
+    .infra-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eef2fa;
+      color: #3a4a6a;
+    }
+    .infra-table tr:last-child td { border-bottom: none; }
+
+    /* ── CTA ── */
+    .cta {
+      background: linear-gradient(135deg, #0f3460, #1a6ec8);
+      border-radius: 10px;
+      padding: 32px;
+      text-align: center;
+      color: #fff;
+    }
+    .cta h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .cta p {
+      color: #c0d8f0;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .cta a {
+      display: inline-block;
+      background: #fff;
+      color: #0f3460;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 28px;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #f0f4fc;
+      padding: 20px 48px;
+      font-size: 12px;
+      color: #7a8ea8;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header>
+    <div class="label">Project Proposal</div>
+    <h1>AI-Powered Image Analysis<br>&amp; Personalized Recommendations App</h1>
+    <p>A full-stack MVP that lets users upload images, receive AI-generated insights, and get tailored recommendations — with accounts, history, and subscription billing.</p>
+    <div class="header-meta">
+      <div>Prepared by<span>Raj Pulagala</span></div>
+      <div>Date<span>June 7, 2026</span></div>
+      <div>Timeline<span>5–7 Days</span></div>
+      <div>Investment<span>$2,000 – $3,200</span></div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- Understanding -->
+    <section>
+      <h2><span class="icon">💡</span> What We're Building</h2>
+      <p>
+        You need an AI-powered web application where users can upload images and instantly receive intelligent analysis and personalized recommendations. The app needs user accounts, a history dashboard, and a monetization layer via subscriptions — all deployed and ready to scale.
+      </p>
+      <div class="highlight">
+        I'll build this as a clean, production-ready MVP in 5–7 days using OpenAI's latest GPT-4o Vision model, a modern React frontend, and a Python backend — with Stripe subscriptions and full deployment included.
+      </div>
+    </section>
+
+    <!-- Deliverables -->
+    <section>
+      <h2><span class="icon">📦</span> What You Receive</h2>
+      <div class="deliverables-list">
+        <div class="deliverable-item"><div class="d-icon">💻</div><div><strong>Full Source Code</strong><br>GitHub repo transferred to you, with complete ownership</div></div>
+        <div class="deliverable-item"><div class="d-icon">🚀</div><div><strong>Live Deployed MVP</strong><br>Running on Vercel + Render with your custom domain</div></div>
+        <div class="deliverable-item"><div class="d-icon">📄</div><div><strong>Documentation</strong><br>README, local setup guide, environment variable reference</div></div>
+        <div class="deliverable-item"><div class="d-icon">🔧</div><div><strong>Deployment Guide</strong><br>Step-by-step: Vercel, Render, Supabase, Stripe setup</div></div>
+        <div class="deliverable-item"><div class="d-icon">©️</div><div><strong>Full IP Transfer</strong><br>All assets, code, and intellectual property transferred</div></div>
+        <div class="deliverable-item"><div class="d-icon">🛟</div><div><strong>Post-Launch Support</strong><br>Optional 30-day bug-fix coverage available</div></div>
+      </div>
+    </section>
+
+    <!-- Build Plan -->
+    <section>
+      <h2><span class="icon">📅</span> Build Plan</h2>
+      <div class="timeline-bar">
+        <div class="t1"></div>
+        <div class="t1"></div>
+        <div class="t2"></div>
+        <div class="t3"></div>
+        <div class="t4"></div>
+      </div>
+      <div class="phases">
+
+        <div class="phase-card">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 1</span>
+            <span class="phase-title">Core AI Pipeline</span>
+            <span class="phase-day">Days 1–2</span>
+          </div>
+          <ul>
+            <li>Project scaffold: Next.js + FastAPI + GitHub Actions CI/CD</li>
+            <li>User auth: signup, login, password reset (Supabase Auth)</li>
+            <li>Image upload: drag-and-drop UI, 10 MB limit, JPEG/PNG/WEBP</li>
+            <li>AI analysis: GPT-4o Vision returns structured insights (labels, objects, description)</li>
+            <li>Recommendations engine: follow-up AI prompt → 3–5 personalized suggestions</li>
+            <li>Results page: image + analysis summary + recommendation cards</li>
+          </ul>
+        </div>
+
+        <div class="phase-card">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 2</span>
+            <span class="phase-title">Accounts &amp; History</span>
+            <span class="phase-day">Day 3</span>
+          </div>
+          <ul>
+            <li>User dashboard with history of all uploads and past analyses</li>
+            <li>Profile page: name, email, subscription tier badge</li>
+            <li>Analysis detail view: revisit any past result</li>
+            <li>Basic search and filter on history</li>
+          </ul>
+        </div>
+
+        <div class="phase-card">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 3</span>
+            <span class="phase-title">Stripe Subscriptions</span>
+            <span class="phase-day">Day 4</span>
+          </div>
+          <ul>
+            <li>Free tier: 5 analyses/month; Pro tier: unlimited</li>
+            <li>Stripe Checkout session flow</li>
+            <li>Webhook handler: activate/cancel subscriptions in DB</li>
+            <li>Usage gating: enforce free limits, prompt to upgrade</li>
+            <li>Billing portal link for self-serve plan management</li>
+          </ul>
+        </div>
+
+        <div class="phase-card">
+          <div class="phase-header">
+            <span class="phase-badge">Phase 4</span>
+            <span class="phase-title">Polish &amp; Deploy</span>
+            <span class="phase-day">Days 5–7</span>
+          </div>
+          <ul>
+            <li>Responsive mobile UI polish</li>
+            <li>Error handling, loading states, empty states</li>
+            <li>Redis rate limiting to protect AI API costs</li>
+            <li>Secrets management, CORS hardening, input validation</li>
+            <li>Production deploy: Vercel + Render + custom domain</li>
+            <li>End-to-end smoke testing before handoff</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section>
+      <h2><span class="icon">⚙️</span> Recommended Tech Stack</h2>
+      <div class="stack-grid">
+        <div class="stack-item">
+          <div class="layer">Frontend</div>
+          <div class="tech">Next.js 14 (React + TypeScript)</div>
+          <div class="reason">SSR, SEO, fast routing, great file upload UX</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Backend</div>
+          <div class="tech">FastAPI (Python)</div>
+          <div class="reason">Async, native OpenAI SDK, easy to extend</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">AI Model</div>
+          <div class="tech">OpenAI GPT-4o Vision</div>
+          <div class="reason">Analysis + recommendations in a single API call</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Auth + Database</div>
+          <div class="tech">Supabase</div>
+          <div class="reason">Auth, PostgreSQL, and file storage in one platform</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Payments</div>
+          <div class="tech">Stripe Checkout + Billing</div>
+          <div class="reason">Subscriptions, webhooks, self-serve billing portal</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Hosting</div>
+          <div class="tech">Vercel + Render</div>
+          <div class="reason">Zero-config deploys, generous free tiers for MVP</div>
+        </div>
+        <div class="stack-item">
+          <div class="layer">Rate Limiting</div>
+          <div class="tech">Redis (Upstash)</div>
+          <div class="reason">Per-user throttling to control AI costs</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section>
+      <h2><span class="icon">🏗️</span> How It Works</h2>
+      <p>The user uploads an image through the Next.js frontend. The FastAPI backend saves it to Supabase Storage, sends it to GPT-4o Vision for analysis, feeds the structured output into a second AI call to generate personalized recommendations, then writes the result to the database and returns it to the user in real time.</p>
+      <div class="highlight">
+        Supabase handles authentication, the database, and file storage in a single platform — this keeps the architecture simple and the cost low at MVP scale. GPT-4o Vision performs image analysis and recommendation generation in one model, reducing latency and complexity.
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section>
+      <h2><span class="icon">💰</span> Investment</h2>
+      <div class="pricing-grid">
+        <div class="price-card featured">
+          <h3>MVP Development</h3>
+          <div class="amount">$1,500 <span>– $2,000</span></div>
+          <div class="description">Complete working app across all 4 phases, deployed and handed off with full source code and IP transfer</div>
+        </div>
+        <div class="price-card">
+          <h3>+ Post-Launch Support</h3>
+          <div class="amount">$500 <span>– $1,200</span></div>
+          <div class="description">Optional 30-day bug-fix support after launch. Covers issues with core functionality, not new features</div>
+        </div>
+      </div>
+
+      <br>
+      <h3 style="font-size:14px;color:#4a5a7a;margin-bottom:10px;font-weight:600;">Ongoing Infrastructure (Client Pays Directly)</h3>
+      <table class="infra-table">
+        <thead>
+          <tr><th>Service</th><th>Cost</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Supabase</td><td>$0–$25/mo</td><td>Free tier sufficient for early launch</td></tr>
+          <tr><td>Render (backend)</td><td>$7/mo</td><td>Starter instance</td></tr>
+          <tr><td>Vercel (frontend)</td><td>$0–$20/mo</td><td>Free tier for hobby; Pro for custom domains</td></tr>
+          <tr><td>OpenAI API</td><td>~$0.01–$0.03/analysis</td><td>GPT-4o Vision pricing</td></tr>
+          <tr><td>Stripe</td><td>2.9% + $0.30/txn</td><td>No monthly fee</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Post-MVP -->
+    <section>
+      <h2><span class="icon">🔭</span> Built to Grow</h2>
+      <p>The architecture is designed for expansion. Features kept out of MVP scope to control timeline and cost, but straightforward to add later:</p>
+      <ul style="padding-left:20px;font-size:14px;color:#3a4a6a;line-height:2;">
+        <li>Mobile app (React Native sharing the same API)</li>
+        <li>Bulk image upload &amp; batch analysis</li>
+        <li>Social sharing / public profiles</li>
+        <li>Admin analytics dashboard</li>
+        <li>Custom AI model fine-tuning for your specific domain</li>
+        <li>Multi-language support</li>
+      </ul>
+    </section>
+
+    <!-- Why Me -->
+    <section>
+      <h2><span class="icon">👤</span> Why Work With Me</h2>
+      <p>I specialize in shipping AI-powered web apps quickly without sacrificing quality. Recent projects include:</p>
+      <ul style="padding-left:20px;font-size:14px;color:#3a4a6a;line-height:2.2;">
+        <li><strong>AI Voice Agent</strong> — Real-time speech pipeline (Deepgram + Claude + ElevenLabs), deployed on Render with Redis memory and persona routing</li>
+        <li><strong>Financial Data Dashboard</strong> — MCP server + Streamlit app pulling live AAPL data with AI-generated analysis</li>
+        <li><strong>WhatsApp AI Ordering System</strong> — Multi-restaurant MVP with Meta Cloud API, order management, and Stripe payments</li>
+      </ul>
+      <div class="highlight" style="margin-top:16px;">
+        I provide post-launch support, full IP transfer, and clean code you can hand to any developer to continue building. I won't disappear after delivery.
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta">
+      <h3>Ready to get started?</h3>
+      <p>Reply to this proposal and we can kick off Day 1 immediately. I'm available to answer any questions about the stack, timeline, or scope.</p>
+      <a href="#">Get in Touch</a>
+    </div>
+
+  </div>
+
+  <footer>
+    <span>Prepared by Raj Pulagala &mdash; June 7, 2026</span>
+    <span>AI-Powered Image Analysis &amp; Recommendations MVP</span>
+  </footer>
+
+</div>
+</body>
+</html>

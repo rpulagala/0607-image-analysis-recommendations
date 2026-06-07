@@ -1,0 +1,33 @@
+Requirement: AI-Powered Web App Developer Needed (Image Analysis & Personalized Recommendations)
+
+
+Summary
+I am seeking an experienced developer to build an MVP for an AI-powered web application.
+
+The application will allow users to upload images, receive AI-generated insights and personalized recommendations, maintain user accounts, and support future expansion of features and functionality.
+
+Required experience:
+
+AI integrations (OpenAI preferred)
+Image upload and image analysis
+Web application development
+User authentication and account management
+Cloud hosting and deployment
+Subscription/payment integration
+
+Deliverables:
+
+Working MVP
+Complete source code
+Documentation
+Deployment assistance
+Transfer of all project assets and intellectual property
+
+Please include in your proposal:
+
+Examples of AI-powered applications you have built.
+Examples involving image analysis or computer vision.
+Your recommended technology stack.
+Estimated timeline.
+Estimated MVP cost.
+Whether you provide post-launch support.
