@@ -24,6 +24,6 @@ services:
       - key: REDIS_URL
         sync: false
       - key: ALLOWED_ORIGINS
-        value: "*"
+        value: '["*"]'
       - key: FREE_TIER_LIMIT
         value: "5"
