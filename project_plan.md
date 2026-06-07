@@ -21,59 +21,73 @@ Build an MVP web application that lets users upload images, receive AI-generated
 | AI | OpenAI GPT-4o Vision | Image analysis + text recommendations in one call |
 | Auth | Supabase Auth | Built-in OAuth, JWT, user management |
 | Database | Supabase PostgreSQL | Row-level security, works with Auth out of the box |
-| File Storage | Supabase Storage (or S3) | Image uploads, CDN, signed URLs |
+| File Storage | Supabase Storage | Image uploads, CDN, public URLs |
 | Payments | Stripe (Checkout + Billing) | Subscriptions, webhooks, usage metering |
 | Hosting | Vercel (frontend) + Render (backend) | Zero-config deploys, free tiers for MVP |
 | Cache / Rate Limit | Redis (Upstash) | Per-user request throttling |
 
 ---
 
+## Deployment Status
+
+| Service | URL | Status |
+|---|---|---|
+| Frontend | https://0607-image-analysis-recommendations.vercel.app | Live |
+| Backend | https://image-analysis-api-rw8j.onrender.com | Live |
+| Database | Supabase project `visqdxkijkemkhczodxk` | Live |
+| Storage | Supabase bucket `user-images` | Live |
+| Redis | Upstash `stunning-tahr-144691` | Live |
+
+---
+
 ## MVP Feature Scope
 
-### Phase 1 — Core (Weeks 1–2)
-- [ ] Project scaffold: Next.js + FastAPI repos, CI/CD via GitHub Actions
-- [ ] User auth: signup, login, password reset, protected routes (Supabase Auth)
-- [ ] Image upload: drag-and-drop UI, 10 MB limit, JPEG/PNG/WEBP, stored in Supabase Storage
-- [ ] AI analysis endpoint: send image to GPT-4o Vision, return structured JSON (labels, description, detected objects/attributes)
-- [ ] Recommendations engine: follow-up GPT-4o prompt using analysis output → 3–5 personalized suggestions
-- [ ] Results page: display image, analysis summary, recommendations cards
+### Phase 1 — Core ✅ COMPLETE
+- [x] Project scaffold: Next.js + FastAPI, deployed via GitHub
+- [x] User auth: signup, signin, signout (Supabase Auth + JWT)
+- [x] Image upload: drag-and-drop UI, 10 MB limit, JPEG/PNG/WEBP, stored in Supabase Storage
+- [x] AI analysis endpoint: GPT-4o Vision → structured JSON (labels, description, objects, attributes)
+- [x] Recommendations engine: follow-up GPT-4o prompt → 5 personalized suggestions with relevance scores
+- [x] Results page: image display, analysis summary, recommendations cards
 
-### Phase 2 — Accounts & History (Week 3)
-- [ ] User dashboard: history of uploaded images + past analyses
-- [ ] Profile page: name, email, subscription tier badge
-- [ ] Analysis detail view: revisit any past result
-- [ ] Basic search/filter on history
+### Phase 2 — Accounts & History ✅ COMPLETE
+- [x] User dashboard: recent analyses shown after upload
+- [x] Profile page: name, email, subscription tier badge
+- [x] Analysis history: paginated list with thumbnail + description preview
+- [x] Analysis detail view: revisit any past result via `/history/{id}`
+- [ ] Search/filter on history *(deferred to post-MVP)*
 
-### Phase 3 — Payments (Week 4)
-- [ ] Stripe integration: Free tier (5 analyses/month) + Pro tier ($X/month, unlimited)
-- [ ] Stripe Checkout session flow
-- [ ] Webhook handler: activate/cancel subscriptions in DB
-- [ ] Usage gating: enforce free-tier limits, prompt upgrade
-- [ ] Billing portal link for plan management
+### Phase 3 — Payments ⚠️ PARTIALLY COMPLETE
+- [x] Free tier gating: 5 analyses/month enforced, HTTP 402 on limit
+- [x] Usage meter: progress bar on dashboard + profile page
+- [x] Stripe checkout session flow (code complete)
+- [x] Stripe billing portal link (code complete)
+- [x] Webhook handler: `checkout.completed`, `subscription.updated/deleted` (code complete)
+- [ ] **PENDING: Real Stripe keys** — `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID` are placeholders; billing UI will error until configured
 
-### Phase 4 — Polish & Deploy (Week 5)
-- [ ] Responsive mobile UI polish
-- [ ] Error handling, loading states, empty states
-- [ ] Rate limiting (Redis) to protect AI costs
-- [ ] Environment hardening: secrets management, CORS, input validation
-- [ ] Production deploy: Vercel + Render + custom domain
-- [ ] Smoke testing end-to-end
+### Phase 4 — Polish & Deploy ✅ COMPLETE
+- [x] Responsive UI (Tailwind CSS)
+- [x] Error handling: 402 upgrade prompt, loading spinners, empty states
+- [x] Rate limiting via Redis (per-user, per-minute)
+- [x] CORS hardening (`ALLOWED_ORIGINS` env var)
+- [x] Production deploy: Vercel + Render
+- [x] End-to-end smoke test: signup → upload → GPT-4o analysis → recommendations → DB write verified
 
 ---
 
 ## Architecture Diagram (Simplified)
 
 ```
-User Browser (Next.js)
+User Browser (Next.js on Vercel)
     │
-    ├── Supabase Auth  ─────────────────────── PostgreSQL (users, history, subscriptions)
+    ├── Supabase Auth  ─────────────────────── PostgreSQL (profiles, analyses, subscriptions, monthly_usage)
     │
-    ├── POST /api/analyze ──────────────────► FastAPI Backend
+    ├── POST /api/analyze ──────────────────► FastAPI Backend (Render)
     │       │                                      │
-    │       │  image (multipart)                   ├── Supabase Storage (save image)
+    │       │  image (multipart)                   ├── Supabase Storage (save image → user-images bucket)
     │       │                                      ├── OpenAI GPT-4o Vision (analyze)
     │       │                                      ├── OpenAI GPT-4o (recommend)
-    │       │                                      └── DB write (result record)
+    │       │                                      └── DB write (analyses + monthly_usage)
     │       │◄─── { analysis, recommendations } ──┘
     │
     └── Stripe Checkout / Billing Portal
@@ -81,71 +95,105 @@ User Browser (Next.js)
 
 ---
 
-## Timeline
+## What's Been Built
 
-| Day | Milestone |
+### Backend (`/backend`)
+| File | Status |
 |---|---|
-| 1 | Scaffold, auth, image upload + storage |
-| 2 | AI analysis + recommendations pipeline, results page |
-| 3 | Dashboard, history, profile |
-| 4 | Stripe subscriptions, usage gating |
-| 5 | Polish, deploy, docs, handoff |
+| `config.py` | Done — pydantic-settings, handles all env var formats |
+| `database.py` | Done — Supabase singleton client |
+| `main.py` | Done — FastAPI app, CORS, all routers mounted |
+| `routes/auth.py` | Done — signup, signin, signout |
+| `routes/analyze.py` | Done — full pipeline: upload → AI → recs → DB |
+| `routes/history.py` | Done — paginated list + detail |
+| `routes/profile.py` | Done — get + update profile |
+| `routes/billing.py` | Done — usage, checkout, portal |
+| `services/storage.py` | Done — Supabase Storage upload with validation |
+| `services/ai_analysis.py` | Done — GPT-4o Vision → AnalysisResult |
+| `services/recommendations.py` | Done — GPT-4o → 5 Recommendation objects |
+| `services/usage.py` | Done — free tier gating + monthly tracking |
+| `services/stripe_service.py` | Done — customer, checkout, portal (needs real keys) |
+| `middleware/auth_guard.py` | Done — Supabase JWT validation dependency |
+| `middleware/rate_limiter.py` | Done — Redis per-user rate limiter |
+| `webhooks/stripe_webhook.py` | Done — subscription lifecycle events |
 
-**Total: 5-7 days**
+### Frontend (`/frontend`)
+| File | Status |
+|---|---|
+| `app/page.tsx` | Done — landing / redirect |
+| `app/auth/signin/page.tsx` | Done — sign in form |
+| `app/auth/signup/page.tsx` | Done — sign up form |
+| `app/dashboard/page.tsx` | Done — upload + results + recent history |
+| `app/profile/page.tsx` | Done — profile edit + usage + subscription |
+| `app/history/page.tsx` | Done — full history list |
+| `app/history/[id]/page.tsx` | Done — analysis detail |
+| `components/ImageUpload.tsx` | Done — drag-and-drop with client validation |
+| `components/AnalysisResult.tsx` | Done — labels, description, objects, attributes, recs |
+| `components/UsageMeter.tsx` | Done — free/pro usage display |
+| `components/Navbar.tsx` | Done — nav with auth state |
+| `lib/api.ts` | Done — typed API client |
+| `lib/auth.ts` | Done — localStorage auth helpers |
+| `lib/types.ts` | Done — TypeScript interfaces |
+
+### Database (Supabase)
+| Item | Status |
+|---|---|
+| `profiles` table | Done |
+| `analyses` table | Done |
+| `monthly_usage` table | Done |
+| `subscriptions` table | Done |
+| `user-images` storage bucket | Done |
+| Storage RLS policies | Done |
+| `handle_new_user` trigger | Done — auto-creates profile + subscription on signup |
+
+### Tests (`/backend/tests`)
+| File | Coverage |
+|---|---|
+| `test_day1_auth_upload.py` | 21 tests — auth endpoints, upload validation |
+| `test_day2_ai_pipeline.py` | 14 tests — GPT-4o pipeline, recommendations |
+| `test_day3_history_profile.py` | 18 tests — JWT guard, history, profile CRUD |
+| `test_day4_billing_webhooks.py` | 22 tests — usage gating, Stripe, webhooks |
+| `test_day5_7_integration.py` | 16 tests — rate limiter, e2e flows, security |
 
 ---
 
-## Daily File Build Plan
+## Pending — Required for Full MVP
 
-### Day 1 — Scaffold, Auth, Image Upload
-| File | Purpose |
-|---|---|
-| `backend/__init__.py` | Package root |
-| `backend/config.py` | Env vars and settings via pydantic-settings |
-| `backend/database.py` | Supabase client singleton |
-| `backend/main.py` | FastAPI app, CORS middleware, router mounts |
-| `backend/models/__init__.py` | Models package |
-| `backend/routes/__init__.py` | Routes package |
-| `backend/services/__init__.py` | Services package |
-| `backend/middleware/__init__.py` | Middleware package |
-| `backend/webhooks/__init__.py` | Webhooks package |
-| `backend/routes/auth.py` | POST /auth/signup, /auth/signin, /auth/signout |
-| `backend/services/storage.py` | Upload image to Supabase Storage, validate type/size |
+| Item | Priority | Notes |
+|---|---|---|
+| **Stripe live keys** | High | Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID` in Render dashboard; add webhook endpoint in Stripe dashboard pointing to `https://image-analysis-api-rw8j.onrender.com/webhooks/stripe` |
+| **ALLOWED_ORIGINS update** | Medium | Change from `["*"]` to `["https://0607-image-analysis-recommendations.vercel.app"]` in Render env vars |
+| **Custom domain** | Low | Point client's domain to Vercel; update `ALLOWED_ORIGINS` and `NEXT_PUBLIC_API_URL` accordingly |
+| **Email confirmation** | Medium | Supabase currently requires email confirmation on signup — test user was confirmed manually; configure Supabase Auth email templates for production |
+| **Stripe Pro price** | High | Create a recurring price in Stripe dashboard, copy the `price_xxx` ID to Render + Vercel env vars |
 
-### Day 2 — AI Analysis + Recommendations Pipeline
-| File | Purpose |
-|---|---|
-| `backend/models/analysis.py` | Pydantic models: AnalysisResult, Recommendation, AnalysisResponse |
-| `backend/services/ai_analysis.py` | GPT-4o Vision call → structured AnalysisResult |
-| `backend/services/recommendations.py` | Follow-up GPT-4o prompt → list of Recommendation |
-| `backend/routes/analyze.py` | POST /api/analyze — orchestrates upload → analysis → recs → DB write |
+---
 
-### Day 3 — Dashboard, History, Profile
-| File | Purpose |
-|---|---|
-| `backend/models/user.py` | UserProfile, UpdateProfileRequest models |
-| `backend/middleware/auth_guard.py` | get_current_user dependency — validates Supabase JWT |
-| `backend/routes/history.py` | GET /api/history (paginated + search), GET /api/history/{id} |
-| `backend/routes/profile.py` | GET /api/profile, PATCH /api/profile |
+## Pending — Nice-to-Have (Post-MVP)
 
-### Day 4 — Stripe Subscriptions + Usage Gating
-| File | Purpose |
+| Item | Notes |
 |---|---|
-| `backend/models/subscription.py` | Subscription, SubscriptionTier, CheckoutSessionRequest models |
-| `backend/services/usage.py` | check_and_increment_usage (enforces free tier), get_usage |
-| `backend/services/stripe_service.py` | Stripe customer, checkout session, billing portal session |
-| `backend/routes/billing.py` | POST /api/billing/checkout, /billing/portal, GET /billing/usage |
-| `backend/webhooks/stripe_webhook.py` | POST /webhooks/stripe — handle checkout.completed + subscription changes |
+| History search/filter | Filter by date or keyword in analysis description |
+| Password reset flow | Supabase supports it, just needs a frontend page |
+| Client-side image resize | Resize to 1024px before upload to reduce latency + OpenAI cost |
+| Mobile UI polish | Currently functional but not fully optimised for small screens |
+| Admin analytics dashboard | Usage stats, revenue overview |
+| Bulk image upload | Multi-file queue |
+| Social sharing | Public result links |
 
-### Days 5–7 — Rate Limiting, Tests, Deploy
-| File | Purpose |
-|---|---|
-| `backend/middleware/rate_limiter.py` | Redis-backed per-user request throttle (10 req/min default) |
-| `backend/tests/__init__.py` | Tests package |
-| `backend/tests/test_auth.py` | Signup validation, signin bad credentials, auth guard |
-| `backend/tests/test_analyze.py` | Rejects non-images, full pipeline with mocks |
-| `backend/tests/test_billing.py` | Usage endpoint, free/pro tier, checkout URL |
-| `requirements.txt` | Pinned dependencies |
+---
+
+## Timeline
+
+| Day | Milestone | Status |
+|---|---|---|
+| 1 | Scaffold, auth, image upload + storage | Done |
+| 2 | AI analysis + recommendations pipeline | Done |
+| 3 | Dashboard, history, profile | Done |
+| 4 | Stripe subscriptions, usage gating | Done (pending live keys) |
+| 5–7 | Polish, rate limiting, deploy, handoff | Done |
+
+**Total: 5–7 days — MVP deployed**
 
 ---
 
@@ -154,7 +202,7 @@ User Browser (Next.js)
 | Item | Range |
 |---|---|
 | Development (MVP) | $1,500 – $2,000 |
-| Post-launch support (optional, 30 days) | $500 – $1200 |
+| Post-launch support (optional, 30 days) | $500 – $1,200 |
 | **Total** | **$2,000 – $3,200** |
 
 **Ongoing infrastructure costs (client pays directly):**
@@ -168,10 +216,10 @@ User Browser (Next.js)
 
 ## Deliverables
 
-1. Full source code (GitHub repo, client-owned)
-2. Working deployed MVP (Vercel + Render)
+1. Full source code (GitHub: `rpulagala/0607-image-analysis-recommendations`)
+2. Working deployed MVP — Vercel + Render
 3. README with local setup and environment variable docs
-4. Deployment guide (Vercel, Render, Supabase, Stripe setup steps)
+4. Supabase schema (tables, RLS policies, trigger) — documented in README
 5. Transfer of all project assets and IP
 6. Optional: 30-day post-launch bug-fix support
 
@@ -181,9 +229,10 @@ User Browser (Next.js)
 
 | Risk | Mitigation |
 |---|---|
-| OpenAI API cost spikes | Per-user rate limiting + usage alerts |
-| Large image upload latency | Client-side resize to 1024px before upload |
-| Stripe webhook reliability | Idempotent webhook handler with retry logging |
+| OpenAI API cost spikes | Per-user rate limiting (Redis) + free tier cap |
+| Large image upload latency | Client-side resize to 1024px (post-MVP) |
+| Stripe webhook reliability | Idempotent webhook handler with signature verification |
+| Render cold starts (free tier) | ~30s wake-up on first request after inactivity; upgrade to $7/mo paid instance to eliminate |
 | Scope creep | Clear MVP boundary; post-MVP backlog kept separate |
 
 ---
@@ -196,3 +245,5 @@ User Browser (Next.js)
 - Bulk image upload
 - Admin analytics dashboard
 - Multi-language support
+- Password reset page
+- Client-side image resize before upload
