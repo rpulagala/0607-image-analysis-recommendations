@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):
@@ -11,8 +10,19 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str
     STRIPE_PRO_PRICE_ID: str
     REDIS_URL: str = "redis://localhost:6379"
-    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+    ALLOWED_ORIGINS: str = "*"
     FREE_TIER_LIMIT: int = 5
+
+    def get_allowed_origins(self) -> list[str]:
+        import json
+        v = self.ALLOWED_ORIGINS.strip()
+        if not v or v == "*":
+            return ["*"]
+        try:
+            parsed = json.loads(v)
+            return parsed if isinstance(parsed, list) else [str(parsed)]
+        except Exception:
+            return [v]
 
     class Config:
         env_file = ".env"
