@@ -2,14 +2,18 @@
 
 An MVP web application where users upload images, receive AI-generated insights, and get personalized recommendations — with user accounts, usage history, and Stripe subscription billing.
 
+**Live Demo:**
+- Frontend: https://0607-image-analysis-recommendations.vercel.app
+- Backend API: https://image-analysis-api-rw8j.onrender.com/health
+
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14 (React + TypeScript) |
-| Backend | FastAPI (Python) |
+| Frontend | Next.js 14 (React + TypeScript + Tailwind CSS) |
+| Backend | FastAPI (Python 3.11) |
 | AI | OpenAI GPT-4o Vision |
 | Auth + Database + Storage | Supabase |
 | Payments | Stripe Checkout + Billing |
@@ -48,15 +52,35 @@ An MVP web application where users upload images, receive AI-generated insights,
 │   ├── webhooks/
 │   │   └── stripe_webhook.py     # Stripe event handler (checkout, subscription)
 │   └── tests/
-│       ├── conftest.py           # Shared fixtures and test data
+│       ├── conftest.py
 │       ├── test_day1_auth_upload.py
 │       ├── test_day2_ai_pipeline.py
 │       ├── test_day3_history_profile.py
 │       ├── test_day4_billing_webhooks.py
 │       └── test_day5_7_integration.py
-├── requirements.txt
-├── pytest.ini
-└── project_plan.md
+├── frontend/
+│   ├── app/
+│   │   ├── page.tsx              # Landing / redirect
+│   │   ├── auth/signin/page.tsx  # Sign in
+│   │   ├── auth/signup/page.tsx  # Sign up
+│   │   ├── dashboard/page.tsx    # Upload + results + recent history
+│   │   ├── profile/page.tsx      # Profile + usage + subscription
+│   │   ├── history/page.tsx      # Full history list
+│   │   └── history/[id]/page.tsx # Analysis detail
+│   ├── components/
+│   │   ├── ImageUpload.tsx       # Drag-and-drop upload with validation
+│   │   ├── AnalysisResult.tsx    # Labels, description, objects, attributes, recs
+│   │   ├── UsageMeter.tsx        # Free/pro usage display
+│   │   └── Navbar.tsx            # Navigation with auth state
+│   └── lib/
+│       ├── api.ts                # Typed API client
+│       ├── auth.ts               # localStorage auth helpers
+│       └── types.ts              # TypeScript interfaces
+├── .python-version               # Pins Python 3.11 for Render
+├── render.yaml                   # Render backend service config
+├── requirements.txt              # Pinned Python dependencies
+├── pytest.ini                    # asyncio_mode = auto
+└── project_plan.md               # Full build plan and status
 ```
 
 ---
@@ -86,22 +110,23 @@ An MVP web application where users upload images, receive AI-generated insights,
 ### Prerequisites
 
 - Python 3.11+
+- Node.js 18+
 - A [Supabase](https://supabase.com) project
 - An [OpenAI](https://platform.openai.com) API key
-- A [Stripe](https://stripe.com) account
+- A [Stripe](https://stripe.com) account (optional for local dev)
 - A Redis instance ([Upstash](https://upstash.com) free tier works)
 
-### 1. Clone and install dependencies
+### 1. Clone and install backend dependencies
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/rpulagala/0607-image-analysis-recommendations.git
 cd 0607-image-analysis-recommendations
 pip install -r requirements.txt
 ```
 
-### 2. Configure environment variables
+### 2. Configure backend environment variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root (see `.env.example` for all keys):
 
 ```env
 SUPABASE_URL=https://your-project.supabase.co
@@ -110,31 +135,32 @@ SUPABASE_ANON_KEY=your-anon-key
 
 OPENAI_API_KEY=sk-...
 
-STRIPE_SECRET_KEY=sk_live_... (or sk_test_... for testing)
+STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 STRIPE_PRO_PRICE_ID=price_...
 
-REDIS_URL=redis://...
+REDIS_URL=rediss://...
 
-ALLOWED_ORIGINS=http://localhost:3000
+ALLOWED_ORIGINS=["http://localhost:3000"]
 FREE_TIER_LIMIT=5
 ```
 
+> **Note:** `ALLOWED_ORIGINS` must be a JSON array string. Stripe keys default to placeholders if omitted — the app will start but billing endpoints will error.
+
 ### 3. Set up Supabase
 
-Run the following SQL in the Supabase SQL editor to create the required tables:
+Run the following SQL in the [Supabase SQL Editor](https://supabase.com/dashboard/project/_/sql/new):
 
 ```sql
--- User profiles (extends Supabase auth.users)
+-- Tables
 create table profiles (
   id uuid references auth.users primary key,
   full_name text,
   subscription_tier text default 'free'
 );
 
--- Analysis records
 create table analyses (
-  id uuid primary key,
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users not null,
   image_url text not null,
   analysis jsonb not null,
@@ -142,15 +168,13 @@ create table analyses (
   created_at timestamptz default now()
 );
 
--- Monthly usage tracking
 create table monthly_usage (
   user_id uuid references auth.users,
-  month text,               -- format: YYYY-MM
+  month text,
   count int default 0,
   primary key (user_id, month)
 );
 
--- Subscription records
 create table subscriptions (
   user_id uuid references auth.users primary key,
   stripe_customer_id text,
@@ -160,21 +184,20 @@ create table subscriptions (
   current_period_end bigint
 );
 
--- Storage bucket for user images
-insert into storage.buckets (id, name, public) values ('user-images', 'user-images', true);
+-- Storage bucket
+insert into storage.buckets (id, name, public)
+values ('user-images', 'user-images', true)
+on conflict (id) do nothing;
 
--- Storage RLS: authenticated users upload to their own folder; public read
+-- Storage RLS policies
 create policy "Users upload own images" on storage.objects
   for insert to authenticated
   with check (bucket_id = 'user-images' and (storage.foldername(name))[1] = auth.uid()::text);
 
 create policy "Public read images" on storage.objects
   for select using (bucket_id = 'user-images');
-```
 
-Then add a trigger to auto-create `profiles` and `subscriptions` rows on signup:
-
-```sql
+-- Auto-create profile + subscription on signup
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
@@ -201,7 +224,7 @@ uvicorn backend.main:app --reload --port 8000
 
 API available at `http://localhost:8000` · Swagger docs at `http://localhost:8000/docs`
 
-### 5. Run the frontend
+### 5. Configure and run the frontend
 
 ```bash
 cd frontend
@@ -225,8 +248,6 @@ Frontend available at `http://localhost:3000`
 
 ## Running Tests
 
-Tests are organized by build day and can be run individually or all at once.
-
 ```bash
 # All tests
 pytest -v
@@ -239,55 +260,47 @@ pytest backend/tests/test_day4_billing_webhooks.py -v
 pytest backend/tests/test_day5_7_integration.py -v
 ```
 
-| Test file | Day | Coverage |
-|---|---|---|
-| `test_day1_auth_upload.py` | Day 1 | Auth endpoints, image upload validation |
-| `test_day2_ai_pipeline.py` | Day 2 | GPT-4o Vision, recommendations, analyze endpoint |
-| `test_day3_history_profile.py` | Day 3 | JWT guard, history pagination, profile CRUD |
-| `test_day4_billing_webhooks.py` | Day 4 | Usage gating, Stripe service, webhook event routing |
-| `test_day5_7_integration.py` | Days 5–7 | Rate limiter, e2e flows, free-tier wall, security |
+| Test file | Coverage |
+|---|---|
+| `test_day1_auth_upload.py` | 21 tests — auth endpoints, image upload validation |
+| `test_day2_ai_pipeline.py` | 14 tests — GPT-4o Vision, recommendations, analyze endpoint |
+| `test_day3_history_profile.py` | 18 tests — JWT guard, history pagination, profile CRUD |
+| `test_day4_billing_webhooks.py` | 22 tests — usage gating, Stripe service, webhook event routing |
+| `test_day5_7_integration.py` | 16 tests — rate limiter, e2e flows, free-tier wall, security |
 
 ---
 
 ## Deployment
 
-### Backend (Render)
+### Backend (Render) — Live at https://image-analysis-api-rw8j.onrender.com
 
-1. Create a new **Web Service** on [render.com](https://render.com)
-2. Connect your GitHub repository
-3. Set build command: `pip install -r requirements.txt`
-4. Set start command: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-5. Add all environment variables from `.env` in the Render dashboard
+1. Create a **Web Service** on [render.com](https://render.com)
+2. Connect `rpulagala/0607-image-analysis-recommendations`
+3. Build command: `pip install -r requirements.txt`
+4. Start command: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+5. Add all env vars from `.env` in the Render dashboard
+6. Set `ALLOWED_ORIGINS` to `["https://your-vercel-url.vercel.app"]`
 
-### Frontend (Vercel)
+> Render free tier spins down after 15 min of inactivity — first request after sleep takes ~30s. Upgrade to the $7/mo instance to eliminate cold starts.
 
-1. Create a new project on [vercel.com](https://vercel.com)
-2. Connect your GitHub repository (Next.js frontend folder)
-3. Add `NEXT_PUBLIC_API_URL=https://your-render-service.onrender.com` as an environment variable
+### Frontend (Vercel) — Live at https://0607-image-analysis-recommendations.vercel.app
+
+1. Create a project on [vercel.com](https://vercel.com)
+2. Import `rpulagala/0607-image-analysis-recommendations`
+3. Set **Root Directory** to `frontend`
+4. Add env vars:
+   - `NEXT_PUBLIC_API_URL` = your Render URL
+   - `NEXT_PUBLIC_STRIPE_PRO_PRICE_ID` = your Stripe price ID
 
 ### Stripe Webhooks
 
-1. In the Stripe dashboard, go to **Developers → Webhooks**
-2. Add endpoint: `https://your-render-service.onrender.com/webhooks/stripe`
+1. In Stripe dashboard → **Developers → Webhooks**
+2. Add endpoint: `https://image-analysis-api-rw8j.onrender.com/webhooks/stripe`
 3. Subscribe to events:
    - `checkout.session.completed`
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
-4. Copy the signing secret into `STRIPE_WEBHOOK_SECRET`
-
----
-
-## Build Plan
-
-See [`project_plan.md`](project_plan.md) for the full day-by-day breakdown.
-
-| Day | Milestone |
-|---|---|
-| 1 | Scaffold, auth, image upload + storage |
-| 2 | AI analysis + recommendations pipeline |
-| 3 | Dashboard, history, profile |
-| 4 | Stripe subscriptions + usage gating |
-| 5–7 | Polish, rate limiting, deploy, handoff |
+4. Copy the signing secret → `STRIPE_WEBHOOK_SECRET` in Render
 
 ---
 
@@ -296,23 +309,32 @@ See [`project_plan.md`](project_plan.md) for the full day-by-day breakdown.
 | Feature | Free | Pro |
 |---|---|---|
 | Analyses per month | 5 | Unlimited |
-| Image history | ✓ | ✓ |
-| Personalized recommendations | ✓ | ✓ |
-| Priority support | — | ✓ |
+| Image history | Yes | Yes |
+| Personalized recommendations | Yes | Yes |
+| Priority support | — | Yes |
 
 ---
 
 ## Environment Variables Reference
 
+### Backend (`.env`)
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `SUPABASE_URL` | Yes | — | Supabase project URL |
+| `SUPABASE_SERVICE_KEY` | Yes | — | Service role key (backend only) |
+| `SUPABASE_ANON_KEY` | Yes | — | Anon key |
+| `OPENAI_API_KEY` | Yes | — | OpenAI API key |
+| `STRIPE_SECRET_KEY` | No | `sk_test_placeholder` | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | No | `whsec_placeholder` | Stripe webhook signing secret |
+| `STRIPE_PRO_PRICE_ID` | No | `price_placeholder` | Stripe Price ID for Pro tier |
+| `REDIS_URL` | No | `redis://localhost:6379` | Redis connection URL |
+| `ALLOWED_ORIGINS` | No | `*` | CORS origins — JSON array string or plain URL |
+| `FREE_TIER_LIMIT` | No | `5` | Monthly analysis limit for free users |
+
+### Frontend (`frontend/.env.local`)
+
 | Variable | Required | Description |
 |---|---|---|
-| `SUPABASE_URL` | Yes | Supabase project URL |
-| `SUPABASE_SERVICE_KEY` | Yes | Service role key (backend only) |
-| `SUPABASE_ANON_KEY` | Yes | Anon key (for client-side use) |
-| `OPENAI_API_KEY` | Yes | OpenAI API key |
-| `STRIPE_SECRET_KEY` | Yes | Stripe secret key |
-| `STRIPE_WEBHOOK_SECRET` | Yes | Stripe webhook signing secret |
-| `STRIPE_PRO_PRICE_ID` | Yes | Stripe Price ID for Pro tier |
-| `REDIS_URL` | Yes | Redis connection URL |
-| `ALLOWED_ORIGINS` | No | CORS origins (default: `http://localhost:3000`) |
-| `FREE_TIER_LIMIT` | No | Monthly analysis limit for free users (default: `5`) |
+| `NEXT_PUBLIC_API_URL` | Yes | Backend URL (Render in prod, `http://localhost:8000` locally) |
+| `NEXT_PUBLIC_STRIPE_PRO_PRICE_ID` | No | Stripe Price ID shown on upgrade button |
