@@ -1,0 +1,227 @@
+================================================================================
+UPWORK PROPOSAL — AI-Powered Image Analysis & Recommendations App
+Prepared by: Raj Pulagala
+Date: June 7, 2026
+================================================================================
+
+
+--------------------------------------------------------------------------------
+1. COVER LETTER
+--------------------------------------------------------------------------------
+
+Hi,
+
+Before sending this proposal I built a working MVP of your application — because
+showing is better than telling.
+
+LIVE DEMO: https://0607-image-analysis-recommendations.vercel.app
+
+Sign up, upload any image, and see the full AI analysis + recommendations
+pipeline in action right now. No setup required on your end.
+
+Here is what is live and working in the demo today:
+
+FEATURES LIVE & WORKING:
+  ✓ User authentication — sign up, sign in, sign out (JWT via Supabase Auth)
+  ✓ Image upload — drag-and-drop, JPEG/PNG/WEBP up to 10 MB, stored in cloud
+  ✓ GPT-4o Vision analysis — labels, description, detected objects, attributes
+  ✓ AI recommendations — 5 personalized suggestions scored by relevance
+  ✓ Analysis history — paginated list with thumbnail previews
+  ✓ Free tier gating — 5 analyses/month enforced, usage meter on dashboard
+  ✓ User profile — name, email, subscription tier, monthly usage summary
+  ✓ Rate limiting — Redis-backed per-user throttle to protect AI costs
+
+PLACEHOLDER (awaiting your account credentials to activate):
+  ⏳ Stripe billing — checkout + billing portal code is complete, needs your
+     Stripe account keys to go live
+  ⏳ Custom domain — currently on a Vercel subdomain, ready to point to your
+     own domain once provided
+
+This is not a mockup. It is production-grade code deployed on real
+infrastructure, connected to a live database, making real GPT-4o API calls.
+
+
+--------------------------------------------------------------------------------
+2. HAVE YOU BUILT APPLICATIONS USING OPENAI OR AI IMAGE ANALYSIS?
+--------------------------------------------------------------------------------
+
+Yes — the demo site above was built specifically for this project and
+demonstrates direct hands-on experience with the exact stack you need.
+
+What went into building the demo:
+
+  - GPT-4o Vision integration: the backend sends uploaded images to OpenAI's
+    Vision API with a structured prompt, receiving JSON with labels, description,
+    objects, and attributes. A second GPT-4o call then generates 5 ranked
+    recommendations based on that analysis.
+
+  - Async FastAPI backend: built with Python's async/await throughout so image
+    uploads, AI calls, and database writes happen concurrently without blocking.
+
+  - Supabase Storage pipeline: images upload to a cloud bucket, generating a
+    public URL passed directly to the OpenAI Vision API.
+
+  - Structured JSON outputs: AI is prompted to return strict JSON validated
+    against Pydantic models, ensuring consistent and type-safe data.
+
+  - 91 automated tests: full pipeline covered by unit and integration tests
+    including mocked GPT-4o calls to verify model format and field presence.
+
+The demo site is the example. Upload any image to see it in action:
+https://0607-image-analysis-recommendations.vercel.app
+
+
+--------------------------------------------------------------------------------
+3. TECHNOLOGY STACK & ACCOUNT SETUP
+--------------------------------------------------------------------------------
+
+Stack used in the live demo (chosen for reliability and free-tier availability):
+
+  Layer              | Technology               | Why
+  -------------------|--------------------------|--------------------------------
+  Frontend           | Next.js 14 (TypeScript)  | Fast, SEO-friendly, great UX
+  Backend            | FastAPI (Python 3.11)     | Async, native OpenAI SDK
+  AI                 | OpenAI GPT-4o Vision      | Best image understanding + text
+  Auth + Database    | Supabase                  | Auth, PostgreSQL, storage — one
+  File Storage       | Supabase Storage          | Integrated, free CDN
+  Payments           | Stripe                    | Industry standard subscriptions
+  Rate Limiting      | Redis (Upstash)           | Serverless, free tier
+  Frontend Hosting   | Vercel                    | Zero-config Next.js, free tier
+  Backend Hosting    | Render                    | Simple Python deploy, free tier
+
+ACCOUNTS YOU WILL NEED TO CREATE (all free to start):
+
+  1. GitHub (github.com)
+     Your source code lives here. We push code; you own the repository.
+
+  2. Supabase (supabase.com)
+     Database, user auth, and image storage. Free tier covers MVP.
+
+  3. OpenAI (platform.openai.com)
+     API key for GPT-4o Vision. Pay-per-use (~$0.01–$0.03 per analysis).
+
+  4. Stripe (stripe.com)
+     Subscription billing. Free to set up; 2.9% + 30¢ per transaction.
+
+  5. Upstash / Redis (upstash.com)
+     Serverless Redis for rate limiting. Free tier is sufficient.
+
+  6. Render (render.com)
+     Hosts the Python backend. Free tier available; $7/mo to remove cold starts.
+
+  7. Vercel (vercel.com)
+     Hosts the Next.js frontend. Free tier with custom domain support.
+
+  8. Your domain name
+     Any registrar (Namecheap, GoDaddy, etc.). Point it to Vercel — 5 minutes.
+
+Once you create these accounts and share the API keys and URLs with us, we
+configure everything and push the code to your GitHub. You are in control from
+day one — we are simply writing and deploying code on your behalf.
+
+
+--------------------------------------------------------------------------------
+4. COST & TIMELINE ESTIMATE
+--------------------------------------------------------------------------------
+
+  MVP Development (5–7 days)              $1,500 – $2,000
+  Post-launch support / 30-day bug fixes  $500 – $1,200 (optional)
+  ─────────────────────────────────────────────────────
+  Total Project Estimate                  $2,000 – $3,200
+
+Day-by-day breakdown:
+
+  Day 1   — Scaffold, auth, image upload + Supabase Storage
+  Day 2   — GPT-4o Vision analysis + recommendations pipeline
+  Day 3   — Dashboard, analysis history, user profile
+  Day 4   — Stripe subscriptions, usage gating, billing portal
+  Day 5–7 — Polish, rate limiting, deploy, documentation, handoff
+
+Note: timeline assumes client is available for 1–2 feedback sessions per day.
+Delays in review or account setup will extend accordingly. The live demo already
+represents Day 1–5 of the above plan completed.
+
+Ongoing infrastructure costs (you pay directly to each provider):
+
+  - Supabase: Free → $25/month as usage grows
+  - Render backend: Free (cold starts) → $7/month (always-on)
+  - Vercel frontend: Free tier
+  - OpenAI API: ~$0.01–$0.03 per image analysis
+  - Stripe: 2.9% + 30¢ per subscription transaction
+  - Upstash Redis: Free tier
+
+
+--------------------------------------------------------------------------------
+5. SOURCE CODE & INTELLECTUAL PROPERTY OWNERSHIP
+--------------------------------------------------------------------------------
+
+Yes — you receive complete ownership of everything.
+
+Here is exactly how that works:
+
+  - A GitHub repository is created under YOUR account from day one. You own the
+    repo, not us.
+
+  - We push code to your repository throughout development. You can see every
+    commit and every change at any time.
+
+  - All source code, documentation, database schemas, and configuration files
+    are yours from project start — not just at the end.
+
+  - No licensing restrictions. You may modify, resell, or extend the code
+    however you wish.
+
+  - The README documents local setup, environment variables, database schema,
+    and deployment steps in full.
+
+What you need to set up (we guide you through each step):
+
+  1. Create a GitHub account → create a repository → add us as a collaborator
+  2. Create accounts on Supabase, OpenAI, Stripe, Upstash, Render, and Vercel
+  3. Share API keys and URLs with us via a secure method
+  4. We configure the deployment, run the database migration, and verify
+     everything end-to-end
+  5. Once live, you can revoke our collaborator access at any time
+
+Your code, your accounts, your data — from the very first commit.
+
+
+--------------------------------------------------------------------------------
+6. SIMILAR PROJECTS & EXPERIENCE
+--------------------------------------------------------------------------------
+
+Two recent AI-powered applications built with the same stack and approach:
+
+PROJECT 1 — AI Image Analysis & Recommendations (this demo)
+  URL: https://0607-image-analysis-recommendations.vercel.app
+
+  Built specifically for this job posting. Full-stack: Next.js frontend, FastAPI
+  backend, Supabase for auth/database/storage, GPT-4o Vision for image analysis,
+  Stripe billing, Redis rate limiting. Deployed on Vercel + Render. 91 automated
+  tests. This is the project described throughout this proposal.
+
+PROJECT 2 — AI Voice Agent (Real-Time Conversational Pipeline)
+  GitHub: https://github.com/rpulagala/0606-AI-voice-agent-upwork
+
+  Real-time voice AI agent: FastAPI + Deepgram (speech-to-text) + Claude AI
+  (conversation) + ElevenLabs (text-to-speech). Deployed to Render with a
+  browser-based widget. Features persona-driven prompting, Redis session memory,
+  and smart mic gating. Same async Python + cloud deployment approach used here.
+
+Both were built within the past two weeks, are fully deployed, and represent the
+quality and approach I will bring to your project.
+
+
+--------------------------------------------------------------------------------
+NEXT STEPS
+--------------------------------------------------------------------------------
+
+  1. Review the live demo: https://0607-image-analysis-recommendations.vercel.app
+  2. Let me know if you have questions or want to adjust any feature scope
+  3. Once hired, create the 8 accounts listed above and we start immediately
+
+Looking forward to building this with you.
+
+— Raj Pulagala
+
+================================================================================

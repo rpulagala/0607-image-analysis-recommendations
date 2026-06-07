@@ -1,0 +1,34 @@
+Create a proposal to client now mentioning the MVP demo site. Include below topics:  
+
+1. Cover Letter:
+I've build a MVP starter site for your review. 
+Site name:https://0607-image-analysis-recommendations.vercel.app
+project plan - high level. And what has been build to demo to client. 
+what features available. What features are placeholders for now.
+
+
+2. Have you built an application using OpenAI, AI image analysis, or computer vision? Please provide links, screenshots, or examples.
+Give details what went into building this site for him for demo
+
+3. What technology stack would you recommend for this project and why?
+What technology stack was used. Accounts created and steps to activate them 
+
+4. Based on the information provided, what would you estimate as the cost and timeline for an MVP?
+mention the cost and timeline estimate from the 
+
+5. Will I receive complete ownership of the source code, documentation, designs, and all intellectual property upon project completion?
+Mention all souce code and documentation can be his once the project starts. 
+
+He needs to create GitHub account
+supabase
+open_api_key
+stripe account
+redis
+render account
+vercil account
+website url
+
+and once these accounts are created and he can provide the required api keys, urls, and configure them himself - we will provide guidance. The site is under his control from the start. We will just be pushing code to GitHub.
+
+6. Please describe a similar project you have worked on and explain your role in the development process.
+Mention a project or two we have build together in past week or two. And provide the URL's

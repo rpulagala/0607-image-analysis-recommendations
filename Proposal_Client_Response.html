@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upwork Proposal — AI Image Analysis & Recommendations App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      line-height: 1.7;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+      color: #fff;
+      padding: 48px 48px 40px;
+    }
+    header .label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #7ecbff;
+      margin-bottom: 12px;
+    }
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+    header p {
+      font-size: 15px;
+      color: #c8d8e8;
+      max-width: 600px;
+    }
+    .header-meta {
+      display: flex;
+      gap: 32px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .header-meta div { font-size: 13px; color: #a0b8cc; }
+    .header-meta span { display: block; color: #fff; font-weight: 600; margin-top: 2px; }
+
+    .content { padding: 48px; }
+
+    .demo-banner {
+      background: linear-gradient(135deg, #e8f4ff, #f0f8ff);
+      border: 2px solid #1a6ec8;
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .demo-banner .icon {
+      font-size: 36px;
+      flex-shrink: 0;
+    }
+    .demo-banner h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f3460;
+      margin-bottom: 4px;
+    }
+    .demo-banner a {
+      color: #1a6ec8;
+      font-weight: 600;
+      font-size: 14px;
+      word-break: break-all;
+    }
+    .demo-banner p {
+      font-size: 13px;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .section { margin-bottom: 44px; }
+    .section-number {
+      display: inline-block;
+      background: #1a6ec8;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .section h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f3460;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e8f0fb;
+    }
+    .section p { font-size: 15px; color: #333; margin-bottom: 12px; }
+    .section ul { padding-left: 20px; margin-bottom: 12px; }
+    .section ul li { font-size: 15px; color: #333; margin-bottom: 6px; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .feature-card {
+      border: 1px solid #e0eaf6;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .feature-card.done { border-left: 4px solid #22c55e; }
+    .feature-card.pending { border-left: 4px solid #f59e0b; }
+    .feature-card h4 { font-size: 13px; font-weight: 700; color: #0f3460; margin-bottom: 4px; }
+    .feature-card p { font-size: 13px; color: #555; margin: 0; }
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .badge.live { background: #dcfce7; color: #166534; }
+    .badge.placeholder { background: #fef3c7; color: #92400e; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 16px 0;
+    }
+    th {
+      background: #f0f6ff;
+      color: #0f3460;
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 2px solid #dce8f8;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eef2f8;
+      color: #333;
+      vertical-align: top;
+    }
+    tr:last-child td { border-bottom: none; }
+    td code {
+      background: #f0f4ff;
+      color: #1a6ec8;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .account-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .account-item {
+      background: #f8faff;
+      border: 1px solid #dce8f8;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .account-item .num {
+      background: #1a6ec8;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .account-item h4 { font-size: 13px; font-weight: 700; color: #0f3460; }
+    .account-item p { font-size: 12px; color: #666; margin: 0; }
+
+    .cost-box {
+      background: linear-gradient(135deg, #f0f6ff, #e8f4ff);
+      border: 1px solid #c5daf6;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .cost-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #dce8f8;
+      font-size: 14px;
+    }
+    .cost-row:last-child { border-bottom: none; }
+    .cost-row .label { color: #555; }
+    .cost-row .value { font-weight: 700; color: #0f3460; }
+    .cost-row.total .label { font-weight: 700; color: #0f3460; font-size: 15px; }
+    .cost-row.total .value { color: #1a6ec8; font-size: 18px; }
+
+    .project-card {
+      border: 1px solid #dce8f8;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+    }
+    .project-card h4 { font-size: 15px; font-weight: 700; color: #0f3460; margin-bottom: 6px; }
+    .project-card a { color: #1a6ec8; font-size: 13px; font-weight: 600; }
+    .project-card p { font-size: 14px; color: #444; margin-top: 8px; }
+
+    .highlight {
+      background: #f0f6ff;
+      border-left: 4px solid #1a6ec8;
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 14px;
+      color: #333;
+    }
+
+    footer {
+      background: #f8faff;
+      border-top: 1px solid #e0eaf6;
+      padding: 28px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    footer .name { font-weight: 700; color: #0f3460; font-size: 15px; }
+    footer .tagline { font-size: 13px; color: #666; margin-top: 2px; }
+    footer .cta {
+      background: #1a6ec8;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .content { padding: 28px 20px; }
+      header { padding: 32px 20px; }
+      .feature-grid, .account-list { grid-template-columns: 1fr; }
+      footer { padding: 20px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header>
+    <div class="label">Upwork Proposal</div>
+    <h1>AI-Powered Image Analysis<br>&amp; Recommendations App</h1>
+    <p>A working MVP is already live for your review — built specifically to demonstrate how your vision can be delivered.</p>
+    <div class="header-meta">
+      <div>Prepared by <span>Raj Pulagala</span></div>
+      <div>Date <span>June 7, 2026</span></div>
+      <div>Project Type <span>AI Web Application</span></div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- Live Demo Banner -->
+    <div class="demo-banner">
+      <div class="icon">🚀</div>
+      <div>
+        <h3>Live MVP — Ready for You to Explore Right Now</h3>
+        <a href="https://0607-image-analysis-recommendations.vercel.app" target="_blank">
+          https://0607-image-analysis-recommendations.vercel.app
+        </a>
+        <p>Sign up, upload any image, and see the full AI analysis + recommendations pipeline in action. No setup required.</p>
+      </div>
+    </div>
+
+    <!-- 1. Cover Letter -->
+    <div class="section">
+      <div class="section-number">01</div>
+      <h2>Cover Letter</h2>
+
+      <p>Hi, I've taken the time to build a working MVP of your application before sending this proposal — because showing is better than telling.</p>
+
+      <p>The demo site at the link above is a fully functional version of what you described: users can sign up, upload images, receive AI-generated analysis (labels, description, detected objects, and attributes), and get 5 personalized recommendations — all powered by GPT-4o Vision.</p>
+
+      <p><strong>Here's what's live and working in the demo:</strong></p>
+
+      <div class="feature-grid">
+        <div class="feature-card done">
+          <div class="badge live">Live</div>
+          <h4>User Authentication</h4>
+          <p>Sign up, sign in, sign out — JWT-based sessions via Supabase Auth</p>
+        </div>
+        <div class="feature-card done">
+          <div class="badge live">Live</div>
+          <h4>Image Upload</h4>
+          <p>Drag-and-drop or click to upload JPEG/PNG/WEBP up to 10 MB. Stored in cloud.</p>
+        </div>
+        <div class="feature-card done">
+          <div class="badge live">Live</div>
+          <h4>GPT-4o Vision Analysis</h4>
+          <p>Returns labels, description, detected objects, and visual attributes for every image.</p>
+        </div>
+        <div class="feature-card done">
+          <div class="badge live">Live</div>
+          <h4>AI Recommendations</h4>
+          <p>5 personalized suggestions generated from the analysis, each scored by relevance.</p>
+        </div>
+        <div class="feature-card done">
+          <div class="badge live">Live</div>
+          <h4>Analysis History</h4>
+          <p>Full paginated history with thumbnail previews; revisit any past result.</p>
+        </div>
+        <div class="feature-card done">
+          <div class="badge live">Live</div>
+          <h4>Free Tier Gating</h4>
+          <p>5 analyses/month enforced. Usage meter shown on dashboard and profile page.</p>
+        </div>
+        <div class="feature-card done">
+          <div class="badge live">Live</div>
+          <h4>User Profile</h4>
+          <p>Display name, email, subscription tier badge, monthly usage summary.</p>
+        </div>
+        <div class="feature-card done">
+          <div class="badge live">Live</div>
+          <h4>Rate Limiting</h4>
+          <p>Redis-backed per-user throttle to protect AI costs in production.</p>
+        </div>
+        <div class="feature-card pending">
+          <div class="badge placeholder">Placeholder</div>
+          <h4>Stripe Billing</h4>
+          <p>Checkout and billing portal code is complete — needs your Stripe account keys to activate.</p>
+        </div>
+        <div class="feature-card pending">
+          <div class="badge placeholder">Placeholder</div>
+          <h4>Custom Domain</h4>
+          <p>Currently on a Vercel subdomain. Ready to point to your own domain once provided.</p>
+        </div>
+      </div>
+
+      <p>This is not a mockup — it's production-grade code deployed on real infrastructure, connected to a live database, and making real GPT-4o API calls. The only items behind a placeholder are those that require your own account credentials (Stripe) or your domain name.</p>
+    </div>
+
+    <!-- 2. AI/OpenAI Experience -->
+    <div class="section">
+      <div class="section-number">02</div>
+      <h2>Have You Built Applications Using OpenAI or AI Image Analysis?</h2>
+
+      <p>Yes — the demo site you just saw was built specifically for this project and demonstrates hands-on experience with exactly the stack you need.</p>
+
+      <p><strong>What went into building the demo:</strong></p>
+      <ul>
+        <li><strong>GPT-4o Vision integration</strong> — The backend sends uploaded images directly to OpenAI's Vision API with a structured prompt, receiving a JSON response with labels, description, detected objects, and attributes. A second GPT-4o call then uses that analysis to generate 5 ranked recommendations.</li>
+        <li><strong>Async FastAPI backend</strong> — Built with Python's async/await throughout so image uploads, AI calls, and database writes happen concurrently without blocking.</li>
+        <li><strong>Supabase Storage pipeline</strong> — Images are uploaded to a cloud storage bucket, generating a public URL that is passed directly to the OpenAI Vision API.</li>
+        <li><strong>Structured JSON outputs</strong> — The AI is prompted to return strict JSON objects validated against Pydantic models, ensuring consistent and type-safe data across the pipeline.</li>
+        <li><strong>91 automated tests</strong> — The entire pipeline is covered by unit and integration tests including mocked GPT-4o calls to verify model format, field presence, and recommendation caps.</li>
+      </ul>
+
+      <div class="highlight">
+        The demo site is the example. Sign up at <a href="https://0607-image-analysis-recommendations.vercel.app" target="_blank" style="color:#1a6ec8;font-weight:600;">https://0607-image-analysis-recommendations.vercel.app</a> and upload any image to see the full AI pipeline end to end.
+      </div>
+    </div>
+
+    <!-- 3. Tech Stack -->
+    <div class="section">
+      <div class="section-number">03</div>
+      <h2>Technology Stack &amp; Account Setup</h2>
+
+      <p>This is the exact stack used in the live demo — chosen for reliability, free-tier availability, and developer speed at MVP scale:</p>
+
+      <table>
+        <tr><th>Layer</th><th>Technology</th><th>Why</th></tr>
+        <tr><td>Frontend</td><td>Next.js 14 (React + TypeScript)</td><td>Fast, SEO-friendly, great file upload UX</td></tr>
+        <tr><td>Backend</td><td>FastAPI (Python 3.11)</td><td>Async, native OpenAI SDK, clean REST API</td></tr>
+        <tr><td>AI</td><td>OpenAI GPT-4o Vision</td><td>Best-in-class image understanding + text generation in one API</td></tr>
+        <tr><td>Auth + Database</td><td>Supabase</td><td>Built-in auth, PostgreSQL, and file storage — one platform</td></tr>
+        <tr><td>File Storage</td><td>Supabase Storage</td><td>Integrated with auth, public CDN URLs, free tier generous</td></tr>
+        <tr><td>Payments</td><td>Stripe</td><td>Industry standard; handles subscriptions, webhooks, and billing portal</td></tr>
+        <tr><td>Rate Limiting</td><td>Redis (Upstash)</td><td>Serverless Redis with free tier; protects AI API costs</td></tr>
+        <tr><td>Frontend Hosting</td><td>Vercel</td><td>Zero-config Next.js deployment, free tier, global CDN</td></tr>
+        <tr><td>Backend Hosting</td><td>Render</td><td>Simple Python web service deployment, free tier for MVP</td></tr>
+      </table>
+
+      <p><strong>Accounts you'll need to create</strong> (all free to start):</p>
+
+      <div class="account-list">
+        <div class="account-item">
+          <div class="num">1</div>
+          <div>
+            <h4>GitHub</h4>
+            <p>github.com — Your source code lives here. We push code; you own the repo.</p>
+          </div>
+        </div>
+        <div class="account-item">
+          <div class="num">2</div>
+          <div>
+            <h4>Supabase</h4>
+            <p>supabase.com — Database, user auth, and image storage. Free tier covers MVP.</p>
+          </div>
+        </div>
+        <div class="account-item">
+          <div class="num">3</div>
+          <div>
+            <h4>OpenAI</h4>
+            <p>platform.openai.com — API key for GPT-4o Vision. Pay-per-use (~$0.01–$0.03/analysis).</p>
+          </div>
+        </div>
+        <div class="account-item">
+          <div class="num">4</div>
+          <div>
+            <h4>Stripe</h4>
+            <p>stripe.com — Subscription billing. Free to set up; 2.9% + 30¢ per transaction.</p>
+          </div>
+        </div>
+        <div class="account-item">
+          <div class="num">5</div>
+          <div>
+            <h4>Upstash (Redis)</h4>
+            <p>upstash.com — Serverless Redis for rate limiting. Free tier is sufficient.</p>
+          </div>
+        </div>
+        <div class="account-item">
+          <div class="num">6</div>
+          <div>
+            <h4>Render</h4>
+            <p>render.com — Hosts the Python backend. Free tier available; $7/mo to remove cold starts.</p>
+          </div>
+        </div>
+        <div class="account-item">
+          <div class="num">7</div>
+          <div>
+            <h4>Vercel</h4>
+            <p>vercel.com — Hosts the Next.js frontend. Free tier with custom domain support.</p>
+          </div>
+        </div>
+        <div class="account-item">
+          <div class="num">8</div>
+          <div>
+            <h4>Your Domain</h4>
+            <p>Any registrar (Namecheap, GoDaddy, etc.). Point it to Vercel — takes 5 minutes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight">
+        Once you create these accounts and share the API keys and URLs with us, we configure everything and push the code to your GitHub. <strong>You are in control from day one</strong> — we are simply writing and deploying code on your behalf.
+      </div>
+    </div>
+
+    <!-- 4. Cost & Timeline -->
+    <div class="section">
+      <div class="section-number">04</div>
+      <h2>Cost &amp; Timeline Estimate</h2>
+
+      <p>Based on the requirements provided and the demo already built, here is our estimate:</p>
+
+      <div class="cost-box">
+        <div class="cost-row">
+          <span class="label">MVP Development (5–7 days)</span>
+          <span class="value">$1,500 – $2,000</span>
+        </div>
+        <div class="cost-row">
+          <span class="label">Post-launch support — 30 days bug fixes (optional)</span>
+          <span class="value">$500 – $1,200</span>
+        </div>
+        <div class="cost-row total">
+          <span class="label">Total Project Estimate</span>
+          <span class="value">$2,000 – $3,200</span>
+        </div>
+      </div>
+
+      <table>
+        <tr><th>Day</th><th>Milestone</th></tr>
+        <tr><td>Day 1</td><td>Scaffold, auth, image upload + Supabase Storage</td></tr>
+        <tr><td>Day 2</td><td>GPT-4o Vision analysis + recommendations pipeline</td></tr>
+        <tr><td>Day 3</td><td>Dashboard, analysis history, user profile</td></tr>
+        <tr><td>Day 4</td><td>Stripe subscriptions, usage gating, billing portal</td></tr>
+        <tr><td>Day 5–7</td><td>Polish, rate limiting, deploy, documentation, handoff</td></tr>
+      </table>
+
+      <p style="font-size:13px;color:#666;margin-top:12px;">
+        * Timeline assumes client is available for 1–2 feedback sessions per day. Delays in review or account setup will extend accordingly. The demo already represents Day 1–5 of the above plan.
+      </p>
+
+      <p><strong>Ongoing infrastructure costs (you pay directly to each provider):</strong></p>
+      <ul>
+        <li>Supabase: Free → $25/month as usage grows</li>
+        <li>Render backend: Free tier (cold starts) → $7/month (always-on)</li>
+        <li>Vercel frontend: Free tier</li>
+        <li>OpenAI API: ~$0.01–$0.03 per image analysis</li>
+        <li>Stripe: 2.9% + 30¢ per subscription transaction</li>
+        <li>Upstash Redis: Free tier</li>
+      </ul>
+    </div>
+
+    <!-- 5. Source Code Ownership -->
+    <div class="section">
+      <div class="section-number">05</div>
+      <h2>Source Code &amp; Intellectual Property Ownership</h2>
+
+      <p><strong>Yes — you receive complete ownership of everything.</strong></p>
+
+      <p>Here is exactly how that works in practice:</p>
+      <ul>
+        <li>A GitHub repository is created <strong>under your account</strong> from day one. You own the repo, not us.</li>
+        <li>We push code to your repository throughout development. You can see every commit, every change, at any time.</li>
+        <li>All source code, documentation, database schemas, and configuration files are yours upon project start — not just at the end.</li>
+        <li>There are no licensing restrictions. You may modify, resell, or extend the code however you wish.</li>
+        <li>The README documents local setup, environment variables, database schema, and deployment steps in full.</li>
+      </ul>
+
+      <p><strong>What you need to set up</strong> (we guide you through each step):</p>
+      <ul>
+        <li>Create a GitHub account → create a repository → add us as a collaborator</li>
+        <li>Create Supabase, OpenAI, Stripe, Upstash, Render, and Vercel accounts</li>
+        <li>Share the API keys and URLs with us via a secure method</li>
+        <li>We configure the deployment, run the database migration, and verify everything end-to-end</li>
+        <li>Once live, you can revoke our collaborator access at any time</li>
+      </ul>
+
+      <div class="highlight">
+        Your code, your accounts, your data — from the very first commit. We provide the expertise; you retain full control.
+      </div>
+    </div>
+
+    <!-- 6. Similar Projects -->
+    <div class="section">
+      <div class="section-number">06</div>
+      <h2>Similar Projects &amp; Experience</h2>
+
+      <p>Here are two recent AI-powered applications built using the same stack and approach:</p>
+
+      <div class="project-card">
+        <h4>AI Image Analysis &amp; Recommendations — Demo MVP</h4>
+        <a href="https://0607-image-analysis-recommendations.vercel.app" target="_blank">
+          https://0607-image-analysis-recommendations.vercel.app
+        </a>
+        <p>
+          Built specifically for this Upwork job posting. Full-stack application: Next.js frontend, FastAPI backend, Supabase for auth/database/storage, GPT-4o Vision for image analysis, Stripe billing integration, Redis rate limiting. Deployed on Vercel + Render. Includes 91 automated tests. <strong>This is the project described in this proposal.</strong>
+        </p>
+      </div>
+
+      <div class="project-card">
+        <h4>AI Voice Agent — Real-Time Conversational Pipeline</h4>
+        <a href="https://github.com/rpulagala/0606-AI-voice-agent-upwork" target="_blank">
+          github.com/rpulagala/0606-AI-voice-agent-upwork
+        </a>
+        <p>
+          A real-time voice AI agent built with FastAPI, Deepgram (speech-to-text), Claude AI (conversation), and ElevenLabs (text-to-speech). Deployed to Render with a browser-based widget. Features persona-driven prompting, Redis-backed session memory, and smart mic gating to prevent echo. Demonstrates the same async Python + cloud deployment approach used in this project.
+        </p>
+      </div>
+
+      <p>Both projects were built within the past two weeks, are fully deployed, and represent the same quality and approach I will bring to your project.</p>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div>
+      <div class="name">Raj Pulagala</div>
+      <div class="tagline">Full-Stack AI Developer · FastAPI · Next.js · OpenAI</div>
+    </div>
+    <a href="https://0607-image-analysis-recommendations.vercel.app" target="_blank" class="cta">
+      View Live Demo →
+    </a>
+  </footer>
+
+</div>
+</body>
+</html>

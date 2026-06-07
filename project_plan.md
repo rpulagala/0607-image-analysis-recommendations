@@ -195,6 +195,8 @@ User Browser (Next.js on Vercel)
 
 **Total: 5–7 days — MVP deployed**
 
+> **Assumption:** Timeline is based on client being available for 1–2 feedback sessions per day. Delays in client review or approval will extend the timeline accordingly.
+
 ---
 
 ## Cost Estimate
